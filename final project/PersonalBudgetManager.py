@@ -1,11 +1,11 @@
 import PySimpleGUI as sg
 from datetime import datetime
 
+# Global variables to store expense data and cumulative totals
 expenses = []
 total_balance = 0
 total_income = 0
 total_spending = 0
-
 
 def handleRemoveExpense(main_window):
     # Prepare data for layout
@@ -32,24 +32,29 @@ def handleRemoveExpense(main_window):
         if event in (sg.WINDOW_CLOSED, "Back"):
             break
         elif event == "Remove Selected":
-            # Get selected rows from the table
-            selected_rows = values['table']
+            # Get selected rows from the table (returned as strings)
+            selected_rows_str = values['table']
+
+            # Convert selected rows to integers
+            selected_rows = [int(index) for index in selected_rows_str]
 
             # Remove selected expenses
-            selected_expenses = [expenses[i - 1] for i in selected_rows]
-            for expense in selected_expenses:
-                total_balance -= expense['amount']
-                if expense['amount'] >= 0:
-                    total_income -= expense['amount']
-                else:
-                    total_spending -= expense['amount']
-                expenses.remove(expense)
+            for index in selected_rows:
+                if 0 <= index < len(expenses):
+                    expense = expenses[index]
+                    total_balance -= expense['amount']
+                    if expense['amount'] >= 0:
+                        total_income -= expense['amount']
+                    else:
+                        total_spending -= expense['amount']
+                    expenses.remove(expense)
 
             sg.popup("Selected expenses removed successfully.")
             break
 
     window.close()
     main_window.bring_to_front()
+
 
 
 def addTransaction(is_spending):
@@ -101,8 +106,7 @@ def addTransaction(is_spending):
 
 
 def handleListExpenses(main_window):
-    all_categories = ['All', 'Income', 'Food', 'Rent', 'Utilities', 'Transportation', 'Entertainment', 'Miscellaneous',
-                      'Other']
+    all_categories = ['All', 'Income', 'Food', 'Rent', 'Utilities', 'Transportation', 'Entertainment', 'Miscellaneous', 'Other']
 
     # Initially, show all expenses
     filtered_expenses = expenses
